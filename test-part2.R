@@ -66,6 +66,9 @@ ytest <- test[,9]
 xtest1 <- dummy.data.frame(xtest, sep = ".")
 xtest2 <- as.matrix(xtest1)
 
+fit=glm(ytrain~xtrain2,family=binomial)
+a=predict(fit,newdata=xtrain1,type="response")
+
 ####///////////////////////////////////////////////////////////////////
 
 
@@ -90,13 +93,57 @@ xtest2 <- as.matrix(xtest1)
 
 
 
-fit=glm(ytrain~xtrain2,family=binomial)
+fit=glm(ytrain~xtrain1,family=binomial)
 a=predict(fit,newdata=xtrain1,type="response")
 b=ifelse(a>0.5,1,0)
 confusionMatrix(b,ytrain)
 
-xtrain1 = xtest1
-a=predict(fit,xtest1,type="response")
+
+m=predict(fit,xtest1,type="response")
+n=ifelse(m>0.5,1,0)
+confusionMatrix(n,ytest)
+
+
+########################################################################################
+#3
+df <- read.csv("adult1.csv",stringsAsFactors = FALSE,na.strings = c(""," "," ?"))
+
+# Remove rows which have NA
+df1 <- df[complete.cases(df),]
+dim(df1)
+
+adult <- df1 %>% dplyr::select(age,occupation,education,educationNum,capitalGain,
+                               capital.loss,hours.per.week,native.country,salary)
+
+adult1 <- dummy.data.frame(adult, sep = ".")
+
+train_idx <- trainTestSplit(adult1,trainPercent=75,seed=1111)
+train <- adult1[train_idx, ]
+test <- adult1[-train_idx, ]
+
+
+
+
+fit=glm(salary~.,family=binomial,data=train)
+a=predict(fit,newdata=train,type="response")
+b=ifelse(a>0.5,1,0)
+confusionMatrix(b,train$salary)
+
+
+
+
+m=predict(fit,newdata=test,type="response")
+n=ifelse(m>0.5,1,0)
+confusionMatrix(n,test$salary)
+
+
+
+
+
+
+
+
+#####################
 
 probs=predict(fit,type="response")
 

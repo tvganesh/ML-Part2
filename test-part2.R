@@ -76,7 +76,7 @@ test.y <- test[,77]
 
 cMat <- NULL
 neighbors <-c(1,3,5,10,15)
-for(i in neighbors){
+for(i in seq_along(neighbors)){
     fit =knn(train.X,test.X,train.y,k=i)
     table(fit,test.y)
     a<-confusionMatrix(fit,test.y)
@@ -85,6 +85,10 @@ for(i in neighbors){
     print(a$byClass)
 }
 
+df <- data.frame(neighbors,Accuracy=cMat)
+ggplot(df,aes(x=neighbors,y=Accuracy)) + geom_point() +geom_line(color="blue") +
+    xlab("Number of neighbors") + ylab("Accuracy") +
+    ggtitle("KNN regression - Accuracy vs Number of Neighors (Unnormalized)")
 
 
 

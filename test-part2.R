@@ -90,6 +90,21 @@ ggplot(df,aes(x=neighbors,y=Accuracy)) + geom_point() +geom_line(color="blue") +
     xlab("Number of neighbors") + ylab("Accuracy") +
     ggtitle("KNN regression - Accuracy vs Number of Neighors (Unnormalized)")
 
+######################################
+#K-fold
 
+set.seed(17)
+df=read.csv("auto_mpg.csv",stringsAsFactors = FALSE) # Data from UCI
+df1 <- as.data.frame(sapply(df,as.numeric))
+
+df2 <- df1 %>% dplyr::select(cylinder,displacement, horsepower,weight, acceleration, year,mpg)
+df3 <- df2[complete.cases(df2),]
+
+cv.error.10=rep(0,10)
+for (i in 1:10){
+    glm.fit=glm(mpg~.,data=df3)
+    cv.error.10[i]=cv.glm(Auto,glm.fit,K=10)$delta[1]
+}
+cv.error.10
 
 

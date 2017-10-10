@@ -3,6 +3,7 @@ library(caret)
 library(e1071)
 source('RFunctions-1.R')
 cancer <- read.csv("cancer.csv")
+names(cancer) <- c(seq(1,30),"output")
 X_cancer <- as.matrix(cancer[,1:30])
 y_cancer <- cancer[,31]
 glm.fits=glm(y_cancer~X_cancer,family=binomial,control = list(maxit = 50))
@@ -24,6 +25,23 @@ nullmod1 <- glm(y_test~1, family="binomial")
 
 R2logit(fit,nullmod1)
 
+####################################
+#2
+train_idx <- trainTestSplit(cancer,trainPercent=75,seed=5)
+train <- cancer[train_idx, ]
+test <- cancer[-train_idx, ]
+
+fit=glm(output~.,family=binomial,data=train,control = list(maxit = 50))
+a=predict(fit,newdata=train,type="response")
+b=ifelse(a>0.5,1,0)
+confusionMatrix(b,train$output)
+
+
+
+
+m=predict(fit,newdata=test,type="response")
+n=ifelse(m>0.5,1,0)
+confusionMatrix(n,test$output)
 
 ########################
 # Read Adult data

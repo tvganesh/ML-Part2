@@ -1,4 +1,6 @@
 library(dplyr)
+library(caret)
+library(e1071)
 source('RFunctions-1.R')
 cancer <- read.csv("cancer.csv")
 X_cancer <- as.matrix(cancer[,1:30])
@@ -49,20 +51,65 @@ adult <- df1 %>% dplyr::select(age,occupation,education,educationNum,capitalGain
                         capital.loss,hours.per.week,native.country,salary)
 
 
-
-
-train_idx <- trainTestSplit(adult,trainPercent=75,seed=5)
+train_idx <- trainTestSplit(adult,trainPercent=75,seed=1111)
 train <- adult[train_idx, ]
 test <- adult[-train_idx, ]
 
 
-X_train <- train[,1:8]
-y_train <- train[,9]
-X_train1 <- dummy.data.frame(X_train, sep = ".")
+xtrain <- train[,1:8]
+ytrain <- train[,9]
+xtrain1 <- dummy.data.frame(xtrain, sep = ".")
+xtrain2 <- as.matrix(xtrain1)
+
+xtest <- test[,1:8]
+ytest <- test[,9]
+xtest1 <- dummy.data.frame(xtest, sep = ".")
+xtest2 <- as.matrix(xtest1)
+
+####///////////////////////////////////////////////////////////////////
 
 
-X_adult_train <- as.matrix(X_train1)
-fit=glm(y_train~X_adult_train,family=binomial)
+adult <- df1 %>% dplyr::select(age,occupation,education,educationNum,capitalGain,
+                               capital.loss,hours.per.week,salary)
+
+train_idx <- trainTestSplit(adult,trainPercent=75,seed=1111)
+train <- adult[train_idx, ]
+test <- adult[-train_idx, ]
+
+
+xtrain <- train[,1:7]
+ytrain <- train[,8]
+xtrain1 <- dummy.data.frame(xtrain, sep = ".")
+xtrain2 <- as.matrix(xtrain1)
+
+xtest <- test[,1:7]
+ytest <- test[,8]
+xtest1 <- dummy.data.frame(xtest, sep = ".")
+xtest2 <- as.matrix(xtest1)
+
+
+
+
+fit=glm(ytrain~xtrain2,family=binomial)
+a=predict(fit,newdata=xtrain1,type="response")
+b=ifelse(a>0.5,1,0)
+confusionMatrix(b,ytrain)
+
+xtrain1 = xtest1
+a=predict(fit,xtest1,type="response")
+
+probs=predict(fit,type="response")
+
+contrasts(occupation)
+X_adult_train=X_adult_test
+
+xtrain2=xtest1
+
+
+xtrain1=xtest1
+
+
+
 1 - fit$deviance/fit$null.deviance
 
 

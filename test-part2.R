@@ -67,8 +67,23 @@ m=predict(fit,newdata=test,type="response")
 n=ifelse(m>0.5,1,0)
 confusionMatrix(n,test$salary)
 
+########################
 
+train.X <- train[,1:76]
+train.y <- train[,77]
+test.X <- test[,1:76]
+test.y <- test[,77]
 
+cMat <- NULL
+neighbors <-c(1,3,5,10,15)
+for(i in neighbors){
+    fit =knn(train.X,test.X,train.y,k=i)
+    table(fit,test.y)
+    a<-confusionMatrix(fit,test.y)
+    cMat[i] <- a$overall[1]
+    print(a$overall[1])
+    print(a$byClass)
+}
 
 
 

@@ -107,4 +107,15 @@ for (i in 1:10){
 }
 cv.error.10
 
+#################LOOCV
+library(boot)
+glm.fit=glm(mpg~horsepower,data=df)
+coef(glm.fit)
+lm.fit=lm(mpg~horsepower,data=Auto)
+coef(lm.fit)
+library(boot)
+glm.fit=glm(mpg~horsepower,data=Auto)
+cv.err=cv.glm(Auto,glm.fit)$delta
 
+sum(df$horsepower=="")
+"

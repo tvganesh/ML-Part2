@@ -148,10 +148,34 @@ df1 <- cbind(seq(1,10),df)
 names(df1) <- c("PolynomialDegree","3-fold","5-fold","10-fold")
 
 df2 <- melt(df1,id="PolynomialDegree")
-ggplot(df2) + geom_point(aes(x=PolynomialDegree, y=value, colour=variable)) + geom_line()
+ggplot(df2) + geom_line(aes(x=PolynomialDegree, y=value, colour=variable),size=2) 
 cv.error
 
 matrix(rep(0,30),nrow=3,ncol=10)
+
+folds <- seq(1,10)
+df <- data.frame(folds,cvError=cv.error.10)
+ggplot(df,aes(x=folds,y=cvError)) + geom_point() +geom_line(color="blue") +
+    xlab("Degree of poylnomial") + ylab("CV Error") +
+    ggtitle("K Fold CV - Degree of polynomial vs CV Error")
+
+
+
+
+##############################
+a=matrix(rep(0,30),nrow=3,ncol=10)
+set.seed(17)
+folds<-c(5,7,10)
+for(i in seq_along(folds)){
+    cv.error.10=rep(0,10)
+    for (j in 1:10){
+        glm.fit=glm(mpg~poly(horsepower,j),data=df3)
+        #cv.error=cv.glm(Auto,glm.fit,K=i)$delta[1]
+        a[i,j]=cv.glm(Auto,glm.fit,K=folds[i])$delta[1]
+        print(cv.error)
+    }
+    
+}
 
 folds <- seq(1,10)
 df <- data.frame(folds,cvError=cv.error.10)

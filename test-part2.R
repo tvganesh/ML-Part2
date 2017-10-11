@@ -100,13 +100,18 @@ df1 <- as.data.frame(sapply(df,as.numeric))
 df2 <- df1 %>% dplyr::select(cylinder,displacement, horsepower,weight, acceleration, year,mpg)
 df3 <- df2[complete.cases(df2),]
 
+set.seed(17)
 cv.error.10=rep(0,10)
 for (i in 1:10){
-    glm.fit=glm(mpg~.,data=Auto)
+    glm.fit=glm(mpg~poly(horsepower,i),data=Auto)
     cv.error.10[i]=cv.glm(Auto,glm.fit,K=10)$delta[1]
 }
 cv.error.10
-
+folds <- seq(1,10)
+df <- data.frame(folds,cvError=cv.error.10)
+ggplot(df,aes(x=folds,y=cvError)) + geom_point() +geom_line(color="blue") +
+    xlab("Degree of poylnomial") + ylab("CV Error") +
+    ggtitle("K Fold CV - Degree of polynomial vs CV Error")
 #################LOOCV
 library(boot)
 glm.fit=glm(mpg~horsepower,data=df)
@@ -117,5 +122,40 @@ library(boot)
 glm.fit=glm(mpg~horsepower,data=Auto)
 cv.err=cv.glm(Auto,glm.fit)$delta
 
-sum(df$horsepower=="")
+cv.error=rep(0,5)
+for (i in 1:8){
+    glm.fit=glm(mpg~poly(horsepower,i),data=Auto)
+    cv.error[i]=cv.glm(Auto,glm.fit)$delta[1]
+}
+cv.error
+
+a=matrix(rep(0,30),nrow=3,ncol=10)
+set.seed(17)
+folds<-c(3,5,10)
+for(i in seq_along(folds)){
+        cv.error.10=rep(0,10)
+        for (j in 1:10){
+            glm.fit=glm(mpg~poly(horsepower,j),data=Auto)
+            #cv.error=cv.glm(Auto,glm.fit,K=i)$delta[1]
+            a[i,j]=cv.glm(Auto,glm.fit,K=folds[i])$delta[1]
+            print(cv.error)
+        }
+        
+}
+b <- t(a)
+df <- data.frame(b)
+df1 <- cbind(seq(1,10),df)
+names(df1) <- c("PolynomialDegree","3-fold","5-fold","10-fold")
+
+df2 <- melt(df1,id="PolynomialDegree")
+ggplot(df2) + geom_point(aes(x=PolynomialDegree, y=value, colour=variable)) + geom_line()
+cv.error
+
+matrix(rep(0,30),nrow=3,ncol=10)
+
+folds <- seq(1,10)
+df <- data.frame(folds,cvError=cv.error.10)
+ggplot(df,aes(x=folds,y=cvError)) + geom_point() +geom_line(color="blue") +
+    xlab("Degree of poylnomial") + ylab("CV Error") +
+    ggtitle("K Fold CV - Degree of polynomial vs CV Error")
 "

@@ -102,7 +102,7 @@ df3 <- df2[complete.cases(df2),]
 
 cv.error.10=rep(0,10)
 for (i in 1:10){
-    glm.fit=glm(mpg~.,data=df3)
+    glm.fit=glm(mpg~.,data=Auto)
     cv.error.10[i]=cv.glm(Auto,glm.fit,K=10)$delta[1]
 }
 cv.error.10

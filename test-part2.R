@@ -185,4 +185,12 @@ names(df1) <- c("PolynomialDegree","4-fold","5-fold","10-fold")
 
 df2 <- melt(df1,id="PolynomialDegree")
 ggplot(df2) + geom_line(aes(x=PolynomialDegree, y=value, colour=variable),size=2) 
-"
+
+
+
+df=read.csv("auto_mpg.csv",stringsAsFactors = FALSE) # Data from UCI
+df1 <- as.data.frame(sapply(df,as.numeric))
+
+df2 <- df1 %>% dplyr::select(cylinder,displacement, horsepower,weight, acceleration, year,mpg)
+df3 <- df2[complete.cases(df2),]
+ggplot(df3,aes(x=horsepower,y=mpg)) + geom_point()

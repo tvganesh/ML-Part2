@@ -173,6 +173,10 @@ ggplot(df,aes(x=neighbors,y=Accuracy)) + geom_point() +geom_line(color="blue") +
 ```
 
 
+
+
+
+
 ```{python}
 import numpy as np
 import pandas as pd
@@ -227,6 +231,33 @@ Output image:
 
 ![output](foo1.png)
 
+```{r}
+df=read.csv("auto_mpg.csv",stringsAsFactors = FALSE) # Data from UCI
+df1 <- as.data.frame(sapply(df,as.numeric))
+
+df2 <- df1 %>% dplyr::select(cylinder,displacement, horsepower,weight, acceleration, year,mpg)
+df3 <- df2[complete.cases(df2),]
+ggplot(df3,aes(x=horsepower,y=mpg)) + geom_point() + xlab("Horsepower") + 
+    ylab("Miles Per gallon") + ggtitle("Miles per Gallon vs Hosrsepower")
+```
+
+
+
+```{python}
+autoDF =pd.read_csv("auto_mpg.csv",encoding="ISO-8859-1")
+autoDF.shape
+autoDF.columns
+autoDF1=autoDF[['mpg','cylinder','displacement','horsepower','weight','acceleration','year']]
+autoDF2 = autoDF1.apply(pd.to_numeric, errors='coerce')
+autoDF3=autoDF2.dropna()
+autoDF3.shape
+#X=autoDF3[['cylinder','displacement','horsepower','weight']]
+X=autoDF3[['horsepower']]
+y=autoDF3['mpg']
+
+plt.scatter(X,y)
+plt.show()
+```
 
 ```{r}
 set.seed(17)
@@ -260,6 +291,9 @@ ggplot(df2) + geom_line(aes(x=PolynomialDegree, y=value, colour=variable),size=2
 "
 
 ```
+
+
+
 
 ```{python}
 import numpy as np

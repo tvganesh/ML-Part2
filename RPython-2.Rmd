@@ -306,7 +306,20 @@ fig11.figure.savefig('foo11.png', bbox_inches='tight')
 
 ```
 
+## 5 K Fold Cross Validation
+K Fold Cross Validation is a technique in which the data set is divided into K Folds or K partitions. The Machine Learning model is trained on K-1 folds and tested on the Kth fold i.e.
+we will have K-1 folds for training data and 1 for testing the ML model. Since we can partition this as $latex C_{1}^{K}$ or K choose 1, there will be K such partitions. The K Fold Cross
+Validation estimates the average validation error that we can expect on a new unseen test data.
+
+The formula for K Fold Cross validation is as follows
+
+$latex MSE_{K} = \frac{\sum (y-yhat)^{2}}{n_{K}}$
+and
+$latex n_{K} = \frac{N}{K}$
+
+$latex CV_{K} =\frac{\sum_{K=1}^{K} MSE_{K}}{K}$
 ## 5a Leave out one cross validation (LOOCV) - R Code
+
 ```{r cache=TRUE}
 library(boot)
 library(reshape2)

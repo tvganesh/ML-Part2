@@ -100,7 +100,7 @@ confusionMatrix(n,test$salary)
 
 ```
 
-```{python}
+```{python cache=TRUE}
 import numpy as np
 import pandas as pd
 import os
@@ -137,7 +137,7 @@ print('Recall: {:.2f}'.format(recall_score(y_test, y_predicted)))
 print('F1: {:.2f}'.format(f1_score(y_test, y_predicted)))
 ```
 
-```{r}
+```{r cache=TRUE}
 # Remove rows which have NA
 df1 <- df[complete.cases(df),]
 dim(df1)
@@ -177,7 +177,7 @@ ggplot(df,aes(x=neighbors,y=Accuracy)) + geom_point() +geom_line(color="blue") +
 
 
 
-```{python}
+```{python cache=TRUE}
 import numpy as np
 import pandas as pd
 import os
@@ -220,18 +220,18 @@ for i in neighbors:
     print('Accuracy test score: {:.3f}'
         .format(knn.score(X_test_scaled, y_test)))
         
-fig=plt.plot(neighbors,accuracy)
-fig=plt.title("KNN regression - Accuracy vs Number of neighbors")
-fig=plt.xlabel("Neighbors")
-fig=plt.ylabel("Accuracy")
-fig.figure.savefig('foo1.png', bbox_inches='tight')
+fig1=plt.plot(neighbors,accuracy)
+fig1=plt.title("KNN regression - Accuracy vs Number of neighbors")
+fig1=plt.xlabel("Neighbors")
+fig1=plt.ylabel("Accuracy")
+fig1.figure.savefig('foo1.png', bbox_inches='tight')
 ```
 
 Output image:
 
 ![output](foo1.png)
 
-```{r}
+```{r cache=TRUE}
 df=read.csv("auto_mpg.csv",stringsAsFactors = FALSE) # Data from UCI
 df1 <- as.data.frame(sapply(df,as.numeric))
 
@@ -243,7 +243,11 @@ ggplot(df3,aes(x=horsepower,y=mpg)) + geom_point() + xlab("Horsepower") +
 
 
 
-```{python}
+```{python cache=TRUE}
+import numpy as np
+import pandas as pd
+import os
+import matplotlib.pyplot as plt
 autoDF =pd.read_csv("auto_mpg.csv",encoding="ISO-8859-1")
 autoDF.shape
 autoDF.columns
@@ -255,11 +259,16 @@ autoDF3.shape
 X=autoDF3[['horsepower']]
 y=autoDF3['mpg']
 
-plt.scatter(X,y)
-plt.show()
+fig11=plt.scatter(X,y)
+fig11=plt.title("KNN regression - Accuracy vs Number of neighbors")
+fig11=plt.xlabel("Neighbors")
+fig11=plt.ylabel("Accuracy")
+fig11.figure.savefig('foo11.png', bbox_inches='tight')
+
 ```
 
-```{r}
+
+```{r cache=TRUE}
 set.seed(17)
 df=read.csv("auto_mpg.csv",stringsAsFactors = FALSE) # Data from UCI
 df1 <- as.data.frame(sapply(df,as.numeric))
@@ -287,7 +296,9 @@ df1 <- cbind(seq(1,10),df)
 names(df1) <- c("PolynomialDegree","4-fold","5-fold","10-fold")
 
 df2 <- melt(df1,id="PolynomialDegree")
-ggplot(df2) + geom_line(aes(x=PolynomialDegree, y=value, colour=variable),size=2) 
+ggplot(df2) + geom_line(aes(x=PolynomialDegree, y=value, colour=variable),size=2) +
+    xlab("Degree of Polynomial") + ylab("Cross Validation Error") +
+    ggtitle("K Fold Cross Validation - Cross Validation Error vs Degree of Polynomial")
 "
 
 ```
@@ -295,7 +306,7 @@ ggplot(df2) + geom_line(aes(x=PolynomialDegree, y=value, colour=variable),size=2
 
 
 
-```{python}
+```{python cache=TRUE}
 import numpy as np
 import pandas as pd
 import os
@@ -334,11 +345,6 @@ def computeCVError(X,y,folds):
             X_test_poly = poly.fit_transform(X_test)
             linreg = LinearRegression().fit(X_train_poly, y_train)
             y_pred = linreg.predict(X_test_poly)            
-            #test_mse = mean_squared_error(y_test, y_pred)*float(len(X_train))/float(len(X)) 
-            #test_mse = mean_squared_error(y_test, y_pred)/float(len(X_train))
-            #e=y_test-y_pred
-            #xval_err = np.sum(np.dot(e,e))            
-            #mse.append(xval_err/nK)
             test_mse = mean_squared_error(y_test, y_pred)*float(len(X_train))/float(len(X))          
             mse.append(test_mse)
             
@@ -358,14 +364,21 @@ for folds in [4,5,10]:
 df.columns=['4-fold','5-fold','10-fold']
 df=df.reindex([1,2,3,4,5,6,7,8,9,10])
 df
-fig1=df.plot()
-fig1.figure.savefig('foo2.png', bbox_inches='tight')
+fig2=df.plot()
+fig2=plt.title("K Fold Cross Validation - Cross Validation Error vs Degree of Polynomial")
+fig2=plt.xlabel("Degree of Polynomial")
+fig2=plt.ylabel("Cross validation Error")
+fig2.figure.savefig('foo2.png', bbox_inches='tight')
+
 ```
 ![output](foo2.png)
 
-```{r}
+
+
+```{r cache=TRUE}
 library(boot)
-df=read.csv("auto_mpg.csv",stringsAsFactors = FALSE) # Data from UCI
+df=read.csv("auto_mpg.csv",stringsAsFactors = FALSE)
+
 df1 <- as.data.frame(sapply(df,as.numeric))
 
 df2 <- df1 %>% dplyr::select(cylinder,displacement, horsepower,weight, acceleration, year,mpg)
@@ -380,7 +393,7 @@ ggplot(df,aes(x=degree,y=CVError)) +geom_point() + geom_line(color="blue") +
     ggtitle("LOOCV- Cross Validation Error vs Degree of Polynomial") +
     xlab("Degree") + ylab("Cross ValidationError")
 ```
-```{python}
+```{python cache=TRUE}
 import numpy as np
 import pandas as pd
 import os
@@ -438,7 +451,11 @@ cvError=computeCVError(X,y,len(X))
  
 df=pd.DataFrame(cvError)
 
-fig1=df.plot()
-fig1.figure.savefig('foo3.png', bbox_inches='tight')
+fig3=df.plot()
+fig3=plt.title("Leave one out Cross Validation - Cross Validation Error vs Degree of Polynomial")
+fig3=plt.xlabel("Degree of Polynomial")
+fig3.plt.ylabel("Cross validation Error")
+fig3.figure.savefig('foo3.png', bbox_inches='tight')
+
 ```
 ![output](foo3.png)

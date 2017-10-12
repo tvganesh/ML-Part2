@@ -82,7 +82,7 @@ for(i in seq_along(neighbors)){
     a<-confusionMatrix(fit,test.y)
     cMat[i] <- a$overall[1]
     print(a$overall[1])
-    print(a$byClass)
+    #print(a$byClass)
 }
 
 df <- data.frame(neighbors,Accuracy=cMat)

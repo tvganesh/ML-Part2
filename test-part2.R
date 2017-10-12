@@ -165,7 +165,7 @@ ggplot(df,aes(x=folds,y=cvError)) + geom_point() +geom_line(color="blue") +
 ##############################
 a=matrix(rep(0,30),nrow=3,ncol=10)
 set.seed(17)
-folds<-c(5,7,10)
+folds<-c(4,5,10)
 for(i in seq_along(folds)){
     cv.error.10=rep(0,10)
     for (j in 1:10){
@@ -177,9 +177,12 @@ for(i in seq_along(folds)){
     
 }
 
-folds <- seq(1,10)
-df <- data.frame(folds,cvError=cv.error.10)
-ggplot(df,aes(x=folds,y=cvError)) + geom_point() +geom_line(color="blue") +
-    xlab("Degree of poylnomial") + ylab("CV Error") +
-    ggtitle("K Fold CV - Degree of polynomial vs CV Error")
+
+b <- t(a)
+df <- data.frame(b)
+df1 <- cbind(seq(1,10),df)
+names(df1) <- c("PolynomialDegree","4-fold","5-fold","10-fold")
+
+df2 <- melt(df1,id="PolynomialDegree")
+ggplot(df2) + geom_line(aes(x=PolynomialDegree, y=value, colour=variable),size=2) 
 "

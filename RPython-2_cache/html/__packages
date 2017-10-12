@@ -6,3 +6,5 @@ caret
 e1071
 FNN
 dummies
+boot
+reshape2

@@ -12,6 +12,8 @@ library(e1071)
 source('RFunctions-1.R')
 ```
 
+## 1a. Logistic Regression - R code
+
 ```{r}
 cancer <- read.csv("cancer.csv")
 names(cancer) <- c(seq(1,30),"output")
@@ -30,6 +32,7 @@ n=ifelse(m>0.5,1,0)
 confusionMatrix(n,test$output)
 ```
 
+## 1b. Logistic Regression - Python code
 ```{python}
 import numpy as np
 import pandas as pd
@@ -68,8 +71,7 @@ print('Recall: {:.2f}'.format(recall_score(y_test, y_predicted)))
 print('F1: {:.2f}'.format(f1_score(y_test, y_predicted)))
 ```
 
-
-
+## 2a. Logistic Regression with dummy variables- R code
 ```{r}
 library(dummies)
 df <- read.csv("adult1.csv",stringsAsFactors = FALSE,na.strings = c(""," "," ?"))
@@ -99,6 +101,8 @@ n=ifelse(m>0.5,1,0)
 confusionMatrix(n,test$salary)
 
 ```
+
+## 2a. Logistic Regression with dummy variables- Python code
 
 ```{python cache=TRUE}
 import numpy as np
@@ -137,6 +141,8 @@ print('Recall: {:.2f}'.format(recall_score(y_test, y_predicted)))
 print('F1: {:.2f}'.format(f1_score(y_test, y_predicted)))
 ```
 
+
+## 3a - K Nearest Neighbors Classification - R code
 ```{r cache=TRUE}
 # Remove rows which have NA
 df1 <- df[complete.cases(df),]
@@ -175,7 +181,7 @@ ggplot(df,aes(x=neighbors,y=Accuracy)) + geom_point() +geom_line(color="blue") +
 
 
 
-
+## 3b - K Nearest Neighbors Classification - Python code
 
 ```{python cache=TRUE}
 import numpy as np
@@ -231,6 +237,8 @@ Output image:
 
 ![output](foo1.png)
 
+
+## 4a MPG vs Horsepower scatter plot - R Code
 ```{r cache=TRUE}
 df=read.csv("auto_mpg.csv",stringsAsFactors = FALSE) # Data from UCI
 df1 <- as.data.frame(sapply(df,as.numeric))
@@ -241,7 +249,7 @@ ggplot(df3,aes(x=horsepower,y=mpg)) + geom_point() + xlab("Horsepower") +
     ylab("Miles Per gallon") + ggtitle("Miles per Gallon vs Hosrsepower")
 ```
 
-
+## 4b MPG vs Horsepower scatter plot - Python Code
 
 ```{python cache=TRUE}
 import numpy as np
@@ -267,8 +275,103 @@ fig11.figure.savefig('foo11.png', bbox_inches='tight')
 
 ```
 
-
+## 5a Leave out one cross validation (LOOCV) - R Code
 ```{r cache=TRUE}
+library(boot)
+library(reshape2)
+df=read.csv("auto_mpg.csv",stringsAsFactors = FALSE) # Data from UCI
+df1 <- as.data.frame(sapply(df,as.numeric))
+
+df2 <- df1 %>% dplyr::select(cylinder,displacement, horsepower,weight, acceleration, year,mpg)
+df3 <- df2[complete.cases(df2),]
+set.seed(17)
+cv.error.10=rep(0,10)
+for (i in 1:10){
+    glm.fit=glm(mpg~poly(horsepower,i),data=df3)
+    cv.error.10[i]=cv.glm(df3,glm.fit,K=10)$delta[1]
+}
+cv.error.10
+folds <- seq(1,10)
+df <- data.frame(folds,cvError=cv.error.10)
+ggplot(df,aes(x=folds,y=cvError)) + geom_point() +geom_line(color="blue") +
+    xlab("Degree of Polynomial") + ylab("Cross Validation Error") +
+    ggtitle("Leave one out Cross Validation - Cross Validation Error vs Degree of Polynomial")
+
+```
+
+
+## 5b Leave out one cross validation (LOOCV) - Python Code
+
+```{python}
+import numpy as np
+import pandas as pd
+import os
+import matplotlib.pyplot as plt
+from sklearn.linear_model import LinearRegression
+from sklearn.cross_validation import train_test_split, KFold
+from sklearn.preprocessing import PolynomialFeatures
+from sklearn.metrics import mean_squared_error
+autoDF =pd.read_csv("auto_mpg.csv",encoding="ISO-8859-1")
+autoDF.shape
+autoDF.columns
+autoDF1=autoDF[['mpg','cylinder','displacement','horsepower','weight','acceleration','year']]
+autoDF2 = autoDF1.apply(pd.to_numeric, errors='coerce')
+autoDF3=autoDF2.dropna()
+autoDF3.shape
+#X=autoDF3[['cylinder','displacement','horsepower','weight']]
+X=autoDF3[['horsepower']]
+y=autoDF3['mpg']
+
+# For degreee 
+def computeCVError(X,y,folds):
+    deg=[]
+    mse=[]
+    degree1=[1,2,3,4,5,6,7,8,9,10]
+    
+    nK=len(X)/float(folds)
+    xval_err=0
+    for j in degree1: 
+        kf = KFold(len(X),n_folds=folds)
+        for train_index, test_index in kf:
+            X_train, X_test = X.iloc[train_index], X.iloc[test_index]
+            y_train, y_test = y.iloc[train_index], y.iloc[test_index]  
+
+            poly = PolynomialFeatures(degree=j)             
+            X_train_poly = poly.fit_transform(X_train)
+            X_test_poly = poly.fit_transform(X_test)
+            linreg = LinearRegression().fit(X_train_poly, y_train)
+            y_pred = linreg.predict(X_test_poly)            
+            #test_mse = mean_squared_error(y_test, y_pred)*float(len(X_train))/float(len(X)) 
+            #test_mse = mean_squared_error(y_test, y_pred)/float(len(X_train))
+            #e=y_test-y_pred
+            #xval_err = np.sum(np.dot(e,e))            
+            #mse.append(xval_err/nK)
+            test_mse = mean_squared_error(y_test, y_pred)*float(len(X_train))/float(len(X))          
+            mse.append(test_mse)
+            
+        deg.append(np.mean(mse))
+        
+    return(deg)
+
+
+df=pd.DataFrame()
+print(len(X))
+cvError=computeCVError(X,y,len(X))
+ 
+df=pd.DataFrame(cvError)
+
+fig3=df.plot()
+fig3=plt.title("Leave one out Cross Validation - Cross Validation Error vs Degree of Polynomial")
+fig3=plt.xlabel("Degree of Polynomial")
+fig3=plt.ylabel("Cross validation Error")
+fig3.figure.savefig('foo3.png', bbox_inches='tight')
+```
+
+
+## 6a K Fold Cross Validation - R code
+```{r}
+library(boot)
+library(reshape2)
 set.seed(17)
 df=read.csv("auto_mpg.csv",stringsAsFactors = FALSE) # Data from UCI
 df1 <- as.data.frame(sapply(df,as.numeric))
@@ -283,12 +386,11 @@ for(i in seq_along(folds)){
     for (j in 1:10){
         glm.fit=glm(mpg~poly(horsepower,j),data=df3)
         #cv.error=cv.glm(Auto,glm.fit,K=i)$delta[1]
-        a[i,j]=cv.glm(Auto,glm.fit,K=folds[i])$delta[1]
+        a[i,j]=cv.glm(df3,glm.fit,K=folds[i])$delta[1]
         
     }
     
 }
-
 
 b <- t(a)
 df <- data.frame(b)
@@ -299,13 +401,9 @@ df2 <- melt(df1,id="PolynomialDegree")
 ggplot(df2) + geom_line(aes(x=PolynomialDegree, y=value, colour=variable),size=2) +
     xlab("Degree of Polynomial") + ylab("Cross Validation Error") +
     ggtitle("K Fold Cross Validation - Cross Validation Error vs Degree of Polynomial")
-"
-
 ```
 
-
-
-
+## 6b. K Fold Cross Validation - Python code
 ```{python cache=TRUE}
 import numpy as np
 import pandas as pd
@@ -375,87 +473,3 @@ fig2.figure.savefig('foo2.png', bbox_inches='tight')
 
 
 
-```{r cache=TRUE}
-library(boot)
-df=read.csv("auto_mpg.csv",stringsAsFactors = FALSE)
-
-df1 <- as.data.frame(sapply(df,as.numeric))
-
-df2 <- df1 %>% dplyr::select(cylinder,displacement, horsepower,weight, acceleration, year,mpg)
-df3 <- df2[complete.cases(df2),]
-cv.error=rep(0,5)
-for (i in 1:10){
-    glm.fit=glm(mpg~poly(horsepower,i),data=df3)
-    cv.error[i]=cv.glm(Auto,glm.fit)$delta[1]
-}
-df=data.frame(degree=seq(1,10),CVError=cv.error)
-ggplot(df,aes(x=degree,y=CVError)) +geom_point() + geom_line(color="blue") +
-    ggtitle("LOOCV- Cross Validation Error vs Degree of Polynomial") +
-    xlab("Degree") + ylab("Cross ValidationError")
-```
-```{python cache=TRUE}
-import numpy as np
-import pandas as pd
-import os
-import matplotlib.pyplot as plt
-from sklearn.linear_model import LinearRegression
-from sklearn.cross_validation import train_test_split, KFold
-from sklearn.preprocessing import PolynomialFeatures
-from sklearn.metrics import mean_squared_error
-autoDF =pd.read_csv("auto_mpg.csv",encoding="ISO-8859-1")
-autoDF.shape
-autoDF.columns
-autoDF1=autoDF[['mpg','cylinder','displacement','horsepower','weight','acceleration','year']]
-autoDF2 = autoDF1.apply(pd.to_numeric, errors='coerce')
-autoDF3=autoDF2.dropna()
-autoDF3.shape
-#X=autoDF3[['cylinder','displacement','horsepower','weight']]
-X=autoDF3[['horsepower']]
-y=autoDF3['mpg']
-
-# For degreee 
-def computeCVError(X,y,folds):
-    deg=[]
-    mse=[]
-    degree1=[1,2,3,4,5,6,7,8,9,10]
-    
-    nK=len(X)/float(folds)
-    xval_err=0
-    for j in degree1: 
-        kf = KFold(len(X),n_folds=folds)
-        for train_index, test_index in kf:
-            X_train, X_test = X.iloc[train_index], X.iloc[test_index]
-            y_train, y_test = y.iloc[train_index], y.iloc[test_index]  
-
-            poly = PolynomialFeatures(degree=j)             
-            X_train_poly = poly.fit_transform(X_train)
-            X_test_poly = poly.fit_transform(X_test)
-            linreg = LinearRegression().fit(X_train_poly, y_train)
-            y_pred = linreg.predict(X_test_poly)            
-            #test_mse = mean_squared_error(y_test, y_pred)*float(len(X_train))/float(len(X)) 
-            #test_mse = mean_squared_error(y_test, y_pred)/float(len(X_train))
-            #e=y_test-y_pred
-            #xval_err = np.sum(np.dot(e,e))            
-            #mse.append(xval_err/nK)
-            test_mse = mean_squared_error(y_test, y_pred)*float(len(X_train))/float(len(X))          
-            mse.append(test_mse)
-            
-        deg.append(np.mean(mse))
-        
-    return(deg)
-
-
-df=pd.DataFrame()
-print(len(X))
-cvError=computeCVError(X,y,len(X))
- 
-df=pd.DataFrame(cvError)
-
-fig3=df.plot()
-fig3=plt.title("Leave one out Cross Validation - Cross Validation Error vs Degree of Polynomial")
-fig3=plt.xlabel("Degree of Polynomial")
-fig3.plt.ylabel("Cross validation Error")
-fig3.figure.savefig('foo3.png', bbox_inches='tight')
-
-```
-![output](foo3.png)

@@ -316,10 +316,23 @@ The formula for K Fold Cross validation is as follows
 $latex MSE_{K} = \frac{\sum (y-yhat)^{2}}{n_{K}}$
 and
 $latex n_{K} = \frac{N}{K}$
+and
+$latex CV_{K} = \sum_{K=1}^{K} (\frac{n_{K}}{N}) MSE_{K}$ 
+
+where $latex n_{K}$ is the number of elements in partition 'K' and N is the total number of elements
+$latex CV_{K} =$latex CV_{k}=\sum_{K=1}^{K MSE_{K}$
 
 $latex CV_{K} =\frac{\sum_{K=1}^{K} MSE_{K}}{K}$
-## 5a Leave out one cross validation (LOOCV) - R Code
 
+
+Leave Out one Cross Validation (LOOCV) is a special case of K Fold Cross Validation where N-1 data points are used to train the model and 1 data point is used to test the model. There are N such paritions of N-1 & 1 that are possible. The mean error is measured The Cross Valifation Error for LOOCV is
+
+$latex CV_{N} = \frac{1}{n} *\frac{\sum_{1}^{n}(y-yhat)^{2}}{1-h_{i}}$
+where $latex h_{i}$ is the diagonal hat matrix see [Statistical Learning][(https://lagunita.stanford.edu/courses/HumanitiesandScience/StatLearning/Winter2015/about)]
+
+It took me a day and a half to implement the K Fold Cross Validation formula. I think it is correct. In any case do let me know if it appears erroneous
+## 5a Leave out one cross validation (LOOCV) - R Code
+The package boot in R can be used for computing the cross validation error
 ```{r cache=TRUE}
 library(boot)
 library(reshape2)
@@ -332,11 +345,12 @@ set.seed(17)
 cv.error.10=rep(0,10)
 for (i in 1:10){
     glm.fit=glm(mpg~poly(horsepower,i),data=df3)
-    cv.error.10[i]=cv.glm(df3,glm.fit,K=10)$delta[1]
+    cv.error[i]=cv.glm(df3,glm.fit)$delta[1]
+    
 }
-cv.error.10
+cv.error
 folds <- seq(1,10)
-df <- data.frame(folds,cvError=cv.error.10)
+df <- data.frame(folds,cvError=cv.error)
 ggplot(df,aes(x=folds,y=cvError)) + geom_point() +geom_line(color="blue") +
     xlab("Degree of Polynomial") + ylab("Cross Validation Error") +
     ggtitle("Leave one out Cross Validation - Cross Validation Error vs Degree of Polynomial")
@@ -345,7 +359,9 @@ ggplot(df,aes(x=folds,y=cvError)) + geom_point() +geom_line(color="blue") +
 
 
 ## 5b Leave out one cross validation (LOOCV) - Python Code
-
+In Python there is no available function to compute Cross Validation error and we have to compute
+the above formula. I have done this after several hours. I think it is now in reasonable shape.
+Do let me know if you think otherwise. For LOOCV I use the K Fold Cross Validation with K=N
 ```{python}
 import numpy as np
 import pandas as pd
@@ -413,6 +429,8 @@ fig3.figure.savefig('foo3.png', bbox_inches='tight')
 
 
 ## 6a K Fold Cross Validation - R code
+Here K Fold Cross Validation is done for 4, 5 and 10 folds using the R package boot and the
+glm package
 ```{r}
 library(boot)
 library(reshape2)
@@ -448,6 +466,7 @@ ggplot(df2) + geom_line(aes(x=PolynomialDegree, y=value, colour=variable),size=2
 ```
 
 ## 6b. K Fold Cross Validation - Python code
+The implementation of K-Fold Cross Validation Error has to be implemented and I have done this below
 ```{python cache=TRUE}
 import numpy as np
 import pandas as pd
